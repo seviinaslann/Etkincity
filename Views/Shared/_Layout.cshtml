@@ -1,0 +1,111 @@
+@using System.Security.Claims
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Etkincity</title>
+    <script type="importmap"></script>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/wheel.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/Etkincity.styles.css" asp-append-version="true" />
+</head>
+<body data-user="@(User.Identity?.IsAuthenticated == true ? User.Identity.Name : "")">
+    <header>
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-dark border-bottom box-shadow mb-3">
+            <div class="container">
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Etkin<span>city</span></a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                    <ul class="navbar-nav flex-grow-1">
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">Ana Sayfa</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Privacy">Gizlilik Politikası</a>
+                        </li>
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <li class="nav-item ms-lg-3">
+                                <a class="nav-link text-warning fw-bold" asp-area="" asp-controller="Admin" asp-action="Index">
+                                    <i class="fas fa-crown me-1"></i> Admin Paneli
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                    <ul class="navbar-nav ms-auto">
+                        @if (User.Identity?.IsAuthenticated ?? false)
+                        {
+                            <li class="nav-item d-flex align-items-center me-3">
+                                @{
+                                    var fullName = User.Claims.FirstOrDefault(c => c.Type == "FullName")?.Value ?? User.Identity.Name;
+                                }
+                                <span class="text-secondary fw-bold"><i class="fas fa-user-circle me-1"></i> Hoş geldin, @fullName</span>
+                            </li>
+                            <li class="nav-item">
+                                <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
+                                    <button type="submit" class="btn btn-outline-danger btn-sm rounded-pill px-3">Çıkış Yap</button>
+                                </form>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item me-2">
+                                <a class="btn btn-outline-primary btn-sm rounded-pill px-3" asp-area="" asp-controller="Account" asp-action="Login"><i class="fas fa-sign-in-alt me-1"></i> Giriş Yap</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="btn btn-primary btn-sm rounded-pill px-3" asp-area="" asp-controller="Account" asp-action="Register"><i class="fas fa-user-plus me-1"></i> Kayıt Ol</a>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+    <div class="container">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    <!-- Şans Çarkı Modal -->
+    @if (User.Identity?.IsAuthenticated ?? false)
+    {
+        <div class="modal fade" id="wheelModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content text-center p-4">
+                    <div class="modal-header border-0 pb-0 justify-content-center position-relative">
+                        <h4 class="modal-title fw-bold text-primary">🎁 Hoş Geldin Hediyesi!</h4>
+                        <button type="button" class="btn-close position-absolute end-0 top-0 m-3" id="closeWheelBtn" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p class="text-secondary mb-4">Etkincity'ye özel şans çarkını çevir, harika indirimler veya bedava bilet kazan!</p>
+                        
+                        <div class="wheel-container">
+                            <div class="wheel-pointer"></div>
+                            <canvas id="wheelCanvas" width="300" height="300" class="wheel-canvas"></canvas>
+                            <button id="spinBtn" class="spin-btn">ÇEVİR</button>
+                        </div>
+
+                        <div id="wheelResult" class="mt-4 p-3 bg-light rounded" style="display: none;">
+                            <p id="wheelResultText" class="mb-2 text-dark fs-5"></p>
+                            <span id="wheelResultCode" class="badge bg-success fs-4 p-2 letter-spacing-2"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/wheel.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

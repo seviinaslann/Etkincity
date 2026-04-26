@@ -1,0 +1,74 @@
+@model Etkincity.Models.Reservation
+@{
+    ViewData["Title"] = "Biletiniz";
+}
+
+<div class="container mt-5 pt-4">
+    <div class="text-center mb-5">
+        <h2 class="fw-bold text-primary"><i class="fas fa-check-circle me-2"></i>Rezervasyon Başarılı!</h2>
+        <p class="text-secondary fs-5">Biletiniz hazır. Etkinlik girişinde aşağıdaki QR kodu okutabilirsiniz.</p>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card event-card border-0 shadow-lg" style="border-radius: 20px; overflow: hidden;">
+                <!-- Etkinlik Resmi -->
+                <div style="height: 150px; overflow: hidden; position: relative;">
+                    <img src="@Model.Event?.ImageUrl" alt="@Model.Event?.Title" style="width: 100%; height: 100%; object-fit: cover; filter: brightness(0.7);" />
+                    <div style="position: absolute; bottom: 15px; left: 20px; color: white;">
+                        <span class="badge bg-primary mb-2 fs-6">@Model.Event?.Category</span>
+                        <h4 class="fw-bold m-0 text-white">@Model.Event?.Title</h4>
+                    </div>
+                </div>
+
+                <!-- Bilet Detayları -->
+                <div class="card-body p-4 bg-white text-dark position-relative" style="border-top: 3px dashed #ccc;">
+                    
+                    <!-- Bilet Kesik İzleri (Tasarım Detayı) -->
+                    <div style="position: absolute; top: -15px; left: -15px; width: 30px; height: 30px; background-color: var(--bg-main); border-radius: 50%;"></div>
+                    <div style="position: absolute; top: -15px; right: -15px; width: 30px; height: 30px; background-color: var(--bg-main); border-radius: 50%;"></div>
+
+                    <div class="row text-center mb-4 mt-2">
+                        <div class="col-6 border-end">
+                            <small class="text-muted d-block text-uppercase fw-bold">Tarih & Saat</small>
+                            <strong class="fs-5">@Model.Event?.Date.ToString("dd MMM yyyy")</strong>
+                            <div class="text-primary fw-bold">@Model.Event?.Date.ToString("HH:mm")</div>
+                        </div>
+                        <div class="col-6">
+                            <small class="text-muted d-block text-uppercase fw-bold">Mekan</small>
+                            <strong class="fs-6 d-block text-truncate" title="@Model.Event?.Location">@Model.Event?.Location</strong>
+                        </div>
+                    </div>
+
+                    <div class="bg-light p-3 rounded mb-4">
+                        <div class="row">
+                            <div class="col-6">
+                                <small class="text-muted d-block">Bilet Sahibi</small>
+                                <strong class="fs-5">@Model.CustomerName</strong>
+                            </div>
+                            <div class="col-6 text-end">
+                                <small class="text-muted d-block">Bilet Adedi</small>
+                                <strong class="fs-5">@Model.TicketCount Adet</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- QR Kod -->
+                    <div class="text-center mt-4">
+                        <small class="text-muted d-block mb-2">Giriş için okutun</small>
+                        <img src="data:image/png;base64,@ViewBag.QrCodeBase64" alt="QR Kod" style="width: 200px; height: 200px; padding: 10px; background: white; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);" />
+                        <div class="mt-3">
+                            <span class="badge bg-dark text-white fs-6 py-2 px-3" style="letter-spacing: 2px;">@Model.ReservationCode</span>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="text-center mt-4 mb-5">
+                <a asp-action="Index" class="btn btn-outline-primary rounded-pill px-4 me-2"><i class="fas fa-home me-2"></i>Ana Sayfaya Dön</a>
+                <button onclick="window.print()" class="btn btn-primary rounded-pill px-4"><i class="fas fa-print me-2"></i>Bileti Yazdır</button>
+            </div>
+        </div>
+    </div>
+</div>

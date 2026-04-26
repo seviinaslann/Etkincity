@@ -1,0 +1,131 @@
+@model Etkincity.Models.PaymentViewModel
+@{
+    ViewData["Title"] = "Ödeme Yap";
+}
+
+<div class="container mt-5 pt-4">
+    <div class="text-center mb-5">
+        <h2 class="fw-bold text-primary"><i class="fas fa-lock me-2"></i>Güvenli Ödeme</h2>
+        <p class="text-secondary fs-5">Biletinizi oluşturmak için ödeme bilgilerinizi giriniz.</p>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card event-card border-0 shadow-lg p-5">
+                
+                <div class="text-center mb-4">
+                    <h5 class="text-secondary mb-2">Toplam Ödenecek Tutar</h5>
+                    <h1 id="totalAmountDisplay" class="display-4 fw-bold text-success">₺@Model.TotalAmount.ToString("0.##")</h1>
+                </div>
+
+                <!-- Mock Credit Card UI -->
+                <div class="mb-4 p-4 rounded text-white" style="background: linear-gradient(135deg, #2b5876 0%, #4e4376 100%); box-shadow: 0 10px 20px rgba(0,0,0,0.2);">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <i class="fas fa-microchip fs-3 text-warning"></i>
+                        <i class="fab fa-cc-visa fs-1"></i>
+                    </div>
+                    <div class="mb-3">
+                        <small class="text-white-50 d-block mb-1">Kart Numarası</small>
+                        <div class="fs-4 letter-spacing-2" style="font-family: monospace;">•••• •••• •••• ••••</div>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <small class="text-white-50 d-block mb-1">Kart Sahibi</small>
+                            <div class="text-uppercase fw-bold">AD SOYAD</div>
+                        </div>
+                        <div>
+                            <small class="text-white-50 d-block mb-1">Son Kullanma</small>
+                            <div class="fw-bold">AA/YY</div>
+                        </div>
+                    </div>
+                </div>
+
+                <form asp-action="ProcessPayment" method="post">
+                    <input type="hidden" asp-for="ReservationId" />
+                    <input type="hidden" asp-for="TotalAmount" />
+                    
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                    <div class="mb-4 p-3 rounded" style="background: rgba(255, 255, 255, 0.1); border: 1px dashed var(--accent-color);">
+                        <label asp-for="PromoCode" class="form-label fw-bold text-dark">İndirim Kodu (Opsiyonel)</label>
+                        <div class="input-group">
+                            <input asp-for="PromoCode" id="PromoCodeInput" class="form-control text-dark border-secondary" placeholder="Örn: ETK-20">
+                            <button type="button" id="applyPromoBtn" class="btn btn-outline-primary fw-bold">Uygula</button>
+                        </div>
+                        <small id="promoMessage" class="form-text mt-1 d-block"></small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="CardName" class="form-label fw-bold">Kart Üzerindeki İsim</label>
+                        <input asp-for="CardName" class="form-control text-dark" placeholder="Örn: AHMET YILMAZ">
+                        <span asp-validation-for="CardName" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="CardNumber" class="form-label fw-bold">Kart Numarası</label>
+                        <input asp-for="CardNumber" class="form-control text-dark" placeholder="1111222233334444" maxlength="16">
+                        <span asp-validation-for="CardNumber" class="text-danger small"></span>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-6 mb-4">
+                            <label asp-for="ExpirationDate" class="form-label fw-bold">Son Kullanma (AA/YY)</label>
+                            <input asp-for="ExpirationDate" class="form-control text-dark" placeholder="12/28" maxlength="5">
+                            <span asp-validation-for="ExpirationDate" class="text-danger small"></span>
+                        </div>
+                        <div class="col-6 mb-4">
+                            <label asp-for="Cvv" class="form-label fw-bold">CVV</label>
+                            <input asp-for="Cvv" type="password" class="form-control text-dark" placeholder="***" maxlength="3">
+                            <span asp-validation-for="Cvv" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-success btn-lg"><i class="fas fa-check me-2"></i><span id="submitBtnText">₺@Model.TotalAmount.ToString("0.##") Öde ve Bileti Al</span></button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        const originalAmount = @Model.TotalAmount.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture);
+        
+        document.getElementById('applyPromoBtn').addEventListener('click', function() {
+            const code = document.getElementById('PromoCodeInput').value.trim().toUpperCase();
+            const msg = document.getElementById('promoMessage');
+            const totalDisplay = document.getElementById('totalAmountDisplay');
+            const submitBtnText = document.getElementById('submitBtnText');
+            
+            let multiplier = 1;
+            let discountText = "";
+            
+            if(code === 'ETK-10') { multiplier = 0.90; discountText = "%10 İndirim başarıyla uygulandı!"; }
+            else if(code === 'ETK-20') { multiplier = 0.80; discountText = "%20 İndirim başarıyla uygulandı!"; }
+            else if(code === 'ETK-50') { multiplier = 0.50; discountText = "%50 İndirim başarıyla uygulandı!"; }
+            else if(code === 'ETK-FREE') { multiplier = 0; discountText = "Bedava Bilet! Tutar sıfırlandı."; }
+            else if(code === 'ETK-VIP') { multiplier = 1; discountText = "VIP Yükseltme uygulandı!"; }
+            else if(code === '') { multiplier = 1; discountText = ""; }
+            else {
+                msg.className = "form-text text-danger mt-1 fw-bold d-block";
+                msg.innerText = "Geçersiz veya süresi dolmuş kod.";
+                multiplier = 1;
+            }
+            
+            if (discountText !== "") {
+                msg.className = "form-text text-success mt-1 fw-bold d-block";
+                msg.innerText = discountText;
+            }
+            
+            const newTotal = (originalAmount * multiplier);
+            // Replace dots with commas depending on culture if needed, but simple replace usually works for display
+            const displayTotal = newTotal % 1 === 0 ? newTotal.toString() : newTotal.toFixed(2);
+            
+            totalDisplay.innerText = "₺" + displayTotal;
+            submitBtnText.innerText = "₺" + displayTotal + " Öde ve Bileti Al";
+        });
+    </script>
+}
