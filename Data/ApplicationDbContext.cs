@@ -13,6 +13,7 @@ public class ApplicationDbContext : IdentityDbContext<IdentityUser>
 
     public DbSet<Event> Events { get; set; }
     public DbSet<Reservation> Reservations { get; set; }
+    public DbSet<UserEventView> UserEventViews { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

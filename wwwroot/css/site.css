@@ -75,7 +75,7 @@ body > .container {
 }
 
 .event-card img {
-    height: 200px;
+    height: 260px;
     object-fit: cover;
     width: 100%;
 }
@@ -156,6 +156,7 @@ body > .container {
     font-weight: 800;
     background: linear-gradient(to right, #1b5e20, #4caf50);
     -webkit-background-clip: text;
+    background-clip: text;
     -webkit-text-fill-color: transparent;
     margin-bottom: 1rem;
 }

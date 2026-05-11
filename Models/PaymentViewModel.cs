@@ -14,7 +14,7 @@ public class PaymentViewModel
     public string CardName { get; set; } = string.Empty;
 
     [Required(ErrorMessage = "Lütfen kart numarasını giriniz.")]
-    [CreditCard(ErrorMessage = "Geçerli bir kredi kartı numarası giriniz.")]
+    [RegularExpression(@"^[0-9]{16}$", ErrorMessage = "Geçerli bir 16 haneli kart numarası giriniz.")]
     public string CardNumber { get; set; } = string.Empty;
 
     [Required(ErrorMessage = "Lütfen son kullanma tarihini giriniz.")]

@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/wheel.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/chatbot.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/Etkincity.styles.css" asp-append-version="true" />
 </head>
 <body data-user="@(User.Identity?.IsAuthenticated == true ? User.Identity.Name : "")">
@@ -102,10 +103,33 @@
         </div>
     }
 
+    <!-- Chatbot HTML -->
+    <button class="chatbot-toggler">
+        <span class="fas fa-comment-dots"></span>
+        <span class="fas fa-times"></span>
+    </button>
+    <div class="chatbot">
+        <header>
+            <h2>Asena (EtkinBot)</h2>
+            <span class="close-btn fas fa-times"></span>
+        </header>
+        <ul class="chatbox">
+            <li class="chat incoming">
+                <span class="fas fa-robot"></span>
+                <p>Merhaba! Ben Asena 👋<br>Etkincity'ye hoş geldiniz, size nasıl yardımcı olabilirim?</p>
+            </li>
+        </ul>
+        <div class="chat-input">
+            <textarea placeholder="Bir mesaj yazın..." spellcheck="false" required></textarea>
+            <span id="send-btn" class="fas fa-paper-plane"></span>
+        </div>
+    </div>
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script src="~/js/wheel.js" asp-append-version="true"></script>
+    <script src="~/js/chatbot.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

@@ -1,4 +1,6 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.AspNetCore.Http;
 
 namespace Etkincity.Models;
 
@@ -28,4 +30,7 @@ public class Event
     public EventCategory Category { get; set; }
 
     public string? ImageUrl { get; set; }
+
+    [NotMapped]
+    public IFormFile? ImageUpload { get; set; }
 }

@@ -4,6 +4,7 @@ using Etkincity.Models;
 using Etkincity.Data;
 using Microsoft.EntityFrameworkCore;
 using QRCoder;
+using System.Security.Claims;
 
 
 namespace Etkincity.Controllers;
@@ -32,6 +33,39 @@ public class HomeController : Controller
         }
 
         var events = await query.OrderBy(e => e.Date).ToListAsync();
+
+        // Recommendation Logic
+        if (User.Identity != null && User.Identity.IsAuthenticated)
+        {
+            string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!string.IsNullOrEmpty(userId))
+            {
+                var topCategories = await _context.UserEventViews
+                    .Where(v => v.UserId == userId)
+                    .Include(v => v.Event)
+                    .Where(v => v.Event != null)
+                    .GroupBy(v => v.Event!.Category)
+                    .OrderByDescending(g => g.Count())
+                    .Select(g => g.Key)
+                    .Take(2)
+                    .ToListAsync();
+
+                if (topCategories.Any())
+                {
+                    EventCategory? cat1 = topCategories.Count > 0 ? topCategories[0] : null;
+                    EventCategory? cat2 = topCategories.Count > 1 ? topCategories[1] : null;
+
+                    var recommendedEvents = await _context.Events
+                        .Where(e => (e.Category == cat1 || e.Category == cat2) && e.Date > DateTime.Now)
+                        .OrderBy(e => e.Date)
+                        .Take(3)
+                        .ToListAsync();
+                        
+                    ViewBag.RecommendedEvents = recommendedEvents;
+                }
+            }
+        }
+
         return View(events);
     }
 
@@ -39,6 +73,22 @@ public class HomeController : Controller
     {
         var evt = await _context.Events.FirstOrDefaultAsync(e => e.Id == id);
         if (evt == null) return NotFound();
+
+        if (User.Identity != null && User.Identity.IsAuthenticated)
+        {
+            string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!string.IsNullOrEmpty(userId))
+            {
+                var viewRecord = new UserEventView 
+                { 
+                    UserId = userId, 
+                    EventId = id, 
+                    ViewDate = DateTime.Now 
+                };
+                _context.UserEventViews.Add(viewRecord);
+                await _context.SaveChangesAsync();
+            }
+        }
 
         ViewBag.Event = evt;
         return View(new Reservation { EventId = evt.Id });
@@ -50,6 +100,12 @@ public class HomeController : Controller
     {
         var evt = await _context.Events.FirstOrDefaultAsync(e => e.Id == reservation.EventId);
         if (evt == null) return NotFound();
+
+        ModelState.Remove(nameof(reservation.ReservationCode));
+        ModelState.Remove(nameof(reservation.Event));
+        ModelState.Remove(nameof(reservation.ReservationDate));
+        ModelState.Remove(nameof(reservation.IsPaid));
+        ModelState.Remove(nameof(reservation.TotalPrice));
 
         if (ModelState.IsValid)
         {
