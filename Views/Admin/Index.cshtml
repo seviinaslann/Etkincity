@@ -21,13 +21,15 @@
             </div>
         </div>
         <div class="col-md-4">
-            <div class="card bg-success text-white border-0 shadow h-100 p-3" style="border-radius: 15px;">
-                <div class="card-body text-center">
-                    <i class="fas fa-ticket-alt fa-3x mb-3 opacity-50"></i>
-                    <h3 class="fw-bold">@ViewBag.TotalReservations</h3>
-                    <span class="fs-5">Satılan Bilet</span>
+            <a asp-action="Reservations" class="text-decoration-none">
+                <div class="card bg-success text-white border-0 shadow h-100 p-3 transition-hover" style="border-radius: 15px;">
+                    <div class="card-body text-center">
+                        <i class="fas fa-ticket-alt fa-3x mb-3 opacity-50"></i>
+                        <h3 class="fw-bold">@ViewBag.TotalReservations</h3>
+                        <span class="fs-5">Satılan Bilet</span>
+                    </div>
                 </div>
-            </div>
+            </a>
         </div>
         <div class="col-md-4">
             <div class="card bg-warning text-dark border-0 shadow h-100 p-3" style="border-radius: 15px;">

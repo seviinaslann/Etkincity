@@ -21,8 +21,14 @@ public class Reservation
     public string CustomerEmail { get; set; } = string.Empty;
 
     [Required]
-    [Range(1, 10, ErrorMessage = "En az 1, en fazla 10 bilet rezerve edebilirsiniz.")]
+    [Range(1, 1, ErrorMessage = "Sadece 1 bilet rezerve edebilirsiniz.")]
     public int TicketCount { get; set; }
+
+    public string? UserId { get; set; }
+
+    [Required(ErrorMessage = "Lütfen bir koltuk seçiniz.")]
+    [StringLength(10)]
+    public string SelectedSeat { get; set; } = string.Empty;
 
     public DateTime ReservationDate { get; set; } = DateTime.Now;
 

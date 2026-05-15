@@ -23,7 +23,7 @@ public class AdminController : Controller
     public async Task<IActionResult> Index()
     {
         var totalEvents = await _context.Events.CountAsync();
-        var totalReservations = await _context.Reservations.CountAsync();
+        var totalReservations = await _context.Reservations.Where(r => r.IsPaid).CountAsync();
         var totalIncome = await _context.Reservations.Where(r => r.IsPaid).SumAsync(r => r.TotalPrice);
 
         var events = await _context.Events.OrderByDescending(e => e.Date).ToListAsync();
@@ -33,6 +33,18 @@ public class AdminController : Controller
         ViewBag.TotalIncome = totalIncome;
 
         return View(events);
+    }
+
+    // GET: List Reservations
+    public async Task<IActionResult> Reservations()
+    {
+        var reservations = await _context.Reservations
+            .Where(r => r.IsPaid)
+            .Include(r => r.Event)
+            .OrderByDescending(r => r.ReservationDate)
+            .ToListAsync();
+            
+        return View(reservations);
     }
 
     // GET: Create Event

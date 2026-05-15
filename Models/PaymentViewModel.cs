@@ -6,6 +6,8 @@ public class PaymentViewModel
 {
     public int ReservationId { get; set; }
     public decimal TotalAmount { get; set; }
+    public decimal StandardPrice { get; set; }
+    public bool IsVipSeat { get; set; }
 
     public string? PromoCode { get; set; }
 

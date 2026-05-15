@@ -51,40 +51,127 @@
             <!-- Reservation Form -->
             <div class="col-lg-5">
                 <div class="card event-card border-0 shadow-lg p-4" style="position: sticky; top: 100px;">
-                    <h3 class="fw-bold mb-4">Rezervasyon Yap</h3>
-                    <p class="text-secondary mb-4">Lütfen biletinizi ayırtmak için aşağıdaki bilgileri eksiksiz doldurun.</p>
-
-                    <form asp-action="MakeReservation" method="post">
-                        <input type="hidden" asp-for="EventId" />
-                        
-                        <div class="mb-3">
-                            <label asp-for="CustomerName" class="form-label text-secondary">Ad Soyad</label>
-                            <input asp-for="CustomerName" class="form-control bg-transparent text-dark border-secondary" placeholder="Örn: Ahmet Yılmaz">
-                            <span asp-validation-for="CustomerName" class="text-danger small"></span>
+                    @if (User.Identity?.IsAuthenticated != true)
+                    {
+                        <div class="alert alert-warning border-0 shadow-sm mb-4">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            Bilet alabilmek için lütfen önce giriş yapınız.
                         </div>
-
-                        <div class="mb-3">
-                            <label asp-for="CustomerEmail" class="form-label text-secondary">E-Posta Adresi</label>
-                            <input asp-for="CustomerEmail" type="email" class="form-control bg-transparent text-dark border-secondary" placeholder="Örn: ornek@mail.com">
-                            <span asp-validation-for="CustomerEmail" class="text-danger small"></span>
-                        </div>
-
-                        <div class="mb-4">
-                            <label asp-for="TicketCount" class="form-label text-secondary">Bilet Sayısı</label>
-                            <select asp-for="TicketCount" class="form-select bg-transparent text-dark border-secondary">
-                                @for (int i = 1; i <= 10; i++)
-                                {
-                                    <option class="text-dark" value="@i">@i Bilet</option>
-                                }
-                            </select>
-                            <span asp-validation-for="TicketCount" class="text-danger small"></span>
-                        </div>
-
                         <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-primary btn-lg"><i class="fas fa-check-circle me-2"></i>Rezervasyonu Tamamla</button>
+                            <a asp-controller="Account" asp-action="Login" asp-route-returnUrl="@Context.Request.Path" class="btn btn-primary btn-lg">
+                                <i class="fas fa-sign-in-alt me-2"></i>Giriş Yap
+                            </a>
                             <a asp-action="Index" class="btn btn-outline-light mt-2">Geri Dön</a>
                         </div>
-                    </form>
+                    }
+                    else if (ViewBag.AlreadyReserved == true)
+                    {
+                        <div class="alert alert-info border-0 shadow-sm mb-4">
+                            <i class="fas fa-info-circle me-2"></i>
+                            Bu etkinlik için biletinizi başarıyla satın aldınız.
+                        </div>
+                        <div class="d-grid gap-2">
+                            <a asp-action="Ticket" asp-route-id="@ViewBag.ReservationId" class="btn btn-success btn-lg">
+                                <i class="fas fa-ticket-alt me-2"></i>Biletimi Görüntüle
+                            </a>
+                            <a asp-action="Index" class="btn btn-outline-light mt-2">Geri Dön</a>
+                        </div>
+                    }
+                    else if (ViewBag.PendingPayment == true)
+                    {
+                        <div class="alert alert-warning border-0 shadow-sm mb-4">
+                            <i class="fas fa-credit-card me-2"></i>
+                            Bu etkinlik için ödeme bekleyen bir biletiniz bulunmaktadır.
+                        </div>
+                        <div class="d-grid gap-2">
+                            <a asp-action="Payment" asp-route-id="@ViewBag.ReservationId" class="btn btn-warning btn-lg fw-bold text-dark">
+                                <i class="fas fa-arrow-right me-2"></i>Ödemeyi Tamamla
+                            </a>
+                            <a asp-action="Index" class="btn btn-outline-light mt-2">Geri Dön</a>
+                        </div>
+                    }
+                    else if (ViewBag.IsSoldOut == true)
+                    {
+                        <div class="alert alert-danger border-0 shadow-sm mb-4 text-center">
+                            <i class="fas fa-ban fa-3x mb-3 mt-2"></i>
+                            <h4 class="fw-bold">Biletler Tükendi</h4>
+                            <p class="mb-0">Maalesef bu etkinlik için tüm koltuklar dolmuştur.</p>
+                        </div>
+                        <div class="d-grid gap-2">
+                            <a asp-action="Index" class="btn btn-outline-light mt-2">Tüm Etkinliklere Dön</a>
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-secondary mb-4">Lütfen biletinizi ayırtmak için aşağıdaki bilgileri eksiksiz doldurun.</p>
+
+                        <form asp-action="MakeReservation" method="post">
+                            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                            <input type="hidden" asp-for="EventId" />
+                            
+                            <div class="mb-3">
+                                <label asp-for="CustomerName" class="form-label text-secondary">Ad Soyad</label>
+                                <input asp-for="CustomerName" class="form-control bg-transparent text-dark border-secondary" placeholder="Örn: Ahmet Yılmaz" readonly>
+                                <span asp-validation-for="CustomerName" class="text-danger small"></span>
+                            </div>
+
+                            <div class="mb-3">
+                                <label asp-for="CustomerEmail" class="form-label text-secondary">E-Posta Adresi</label>
+                                <input asp-for="CustomerEmail" type="email" class="form-control bg-transparent text-dark border-secondary" placeholder="Örn: ornek@mail.com" readonly>
+                                <span asp-validation-for="CustomerEmail" class="text-danger small"></span>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="form-label text-secondary fw-bold">Koltuk Seçimi</label>
+                                <div class="seat-map-container bg-white p-3 rounded shadow-sm text-center">
+                                    <div class="screen mb-4 p-2 bg-dark text-white rounded small fw-bold">SAHNE</div>
+                                    <div class="d-flex flex-column gap-2 align-items-center">
+                                        @for (char row = 'A'; row <= 'F'; row++)
+                                        {
+                                            <div class="d-flex gap-2 align-items-center">
+                                                <div class="fw-bold text-muted" style="width: 20px;">@row</div>
+                                                @for (int col = 1; col <= 10; col++)
+                                                {
+                                                    string seatId = $"{row}-{col}";
+                                                    bool isTaken = ViewBag.TakenSeats != null && ((List<string>)ViewBag.TakenSeats).Contains(seatId);
+                                                    bool isVip = (row == 'A' || row == 'B' || row == 'C');
+                                                    string seatClass = isTaken ? "seat-taken" : "seat-available";
+                                                    string vipStyle = isVip ? "border: 2px solid gold;" : "";
+                                                    
+                                                    <div class="seat @seatClass rounded text-center cursor-pointer text-white" 
+                                                         style="width: 30px; height: 30px; line-height: 28px; font-size: 10px; @vipStyle"
+                                                         data-seat="@seatId" data-taken="@isTaken.ToString().ToLower()" data-vip="@isVip.ToString().ToLower()" title="@(isVip ? "VIP Koltuk" : "Standart Koltuk")">
+                                                        @col
+                                                    </div>
+                                                }
+                                            </div>
+                                        }
+                                    </div>
+                                    <div class="d-flex justify-content-center gap-3 mt-4 small flex-wrap">
+                                        <div class="d-flex align-items-center gap-1"><div style="width:15px;height:15px;" class="bg-success rounded"></div> Boş</div>
+                                        <div class="d-flex align-items-center gap-1"><div style="width:15px;height:15px;" class="bg-danger rounded"></div> Dolu</div>
+                                        <div class="d-flex align-items-center gap-1"><div style="width:15px;height:15px;" class="bg-primary rounded"></div> Seçili</div>
+                                        <div class="d-flex align-items-center gap-1"><div style="width:15px;height:15px;border:2px solid gold;" class="rounded"></div> VIP</div>
+                                    </div>
+                                </div>
+                                <input type="hidden" asp-for="SelectedSeat" id="SelectedSeatInput" />
+                                <span asp-validation-for="SelectedSeat" class="text-danger small"></span>
+                                
+                                <div class="mt-3 p-3 bg-light rounded text-center border">
+                                    <div class="text-muted small">Seçilen Koltuk</div>
+                                    <h4 id="displaySeatNumber" class="fw-bold text-primary mb-1">-</h4>
+                                    <div class="text-muted small">Toplam Tutar</div>
+                                    <h4 id="displayPrice" class="fw-bold text-success mb-0">₺@(evt?.Price ?? 0)</h4>
+                                    <small id="vipNote" class="text-warning fw-bold d-none">VIP Koltuk Fiyatı Uygulandı</small>
+                                </div>
+                            </div>
+
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-primary btn-lg"><i class="fas fa-check-circle me-2"></i>Rezervasyonu Tamamla</button>
+                                <a asp-action="Index" class="btn btn-outline-light mt-2">Geri Dön</a>
+                            </div>
+                        </form>
+                    }
                 </div>
             </div>
         </div>
@@ -93,4 +180,44 @@
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <style>
+        .seat { transition: all 0.2s; background-color: #28a745; user-select: none; }
+        .seat-taken { background-color: #dc3545 !important; cursor: not-allowed; opacity: 0.6; }
+        .seat-available:hover { transform: scale(1.15); filter: brightness(1.2); }
+        .seat.selected { background-color: #0d6efd !important; transform: scale(1.15); box-shadow: 0 0 10px rgba(13,110,253,0.6); }
+    </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const seats = document.querySelectorAll('.seat');
+            const seatInput = document.getElementById('SelectedSeatInput');
+            const displaySeat = document.getElementById('displaySeatNumber');
+            const displayPrice = document.getElementById('displayPrice');
+            const vipNote = document.getElementById('vipNote');
+            const basePrice = @(evt != null ? evt.Price.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture) : "0");
+            
+            seats.forEach(seat => {
+                seat.addEventListener('click', function() {
+                    if(this.getAttribute('data-taken') === 'true') return;
+                    
+                    seats.forEach(s => s.classList.remove('selected'));
+                    this.classList.add('selected');
+                    
+                    const seatId = this.getAttribute('data-seat');
+                    const isVip = this.getAttribute('data-vip') === 'true';
+                    
+                    seatInput.value = seatId;
+                    displaySeat.innerText = seatId + (isVip ? ' (VIP)' : '');
+                    
+                    let finalPrice = basePrice;
+                    if(isVip) {
+                        finalPrice = basePrice + (basePrice * 0.5);
+                        vipNote.classList.remove('d-none');
+                    } else {
+                        vipNote.classList.add('d-none');
+                    }
+                    displayPrice.innerText = '₺' + finalPrice;
+                });
+            });
+        });
+    </script>
 }

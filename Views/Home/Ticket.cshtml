@@ -42,11 +42,15 @@
 
                     <div class="bg-light p-3 rounded mb-4">
                         <div class="row">
-                            <div class="col-6">
+                            <div class="col-4">
                                 <small class="text-muted d-block">Bilet Sahibi</small>
                                 <strong class="fs-5">@Model.CustomerName</strong>
                             </div>
-                            <div class="col-6 text-end">
+                            <div class="col-4 text-center border-start border-end">
+                                <small class="text-muted d-block">Koltuk</small>
+                                <strong class="fs-5 text-primary">@Model.SelectedSeat</strong>
+                            </div>
+                            <div class="col-4 text-end">
                                 <small class="text-muted d-block">Bilet Adedi</small>
                                 <strong class="fs-5">@Model.TicketCount Adet</strong>
                             </div>
@@ -67,7 +71,7 @@
 
             <div class="text-center mt-4 mb-5">
                 <a asp-action="Index" class="btn btn-outline-primary rounded-pill px-4 me-2"><i class="fas fa-home me-2"></i>Ana Sayfaya Dön</a>
-                <button onclick="window.print()" class="btn btn-primary rounded-pill px-4"><i class="fas fa-print me-2"></i>Bileti Yazdır</button>
+                <a asp-action="DownloadTicketPdf" asp-route-id="@Model.Id" class="btn btn-danger rounded-pill px-4"><i class="fas fa-file-pdf me-2"></i>Bileti PDF Olarak İndir</a>
             </div>
         </div>
     </div>

@@ -52,6 +52,7 @@
                             <input asp-for="PromoCode" id="PromoCodeInput" class="form-control text-dark border-secondary" placeholder="Örn: ETK-20">
                             <button type="button" id="applyPromoBtn" class="btn btn-outline-primary fw-bold">Uygula</button>
                         </div>
+                        <span asp-validation-for="PromoCode" class="text-danger small"></span>
                         <small id="promoMessage" class="form-text mt-1 d-block"></small>
                     </div>
 
@@ -93,6 +94,8 @@
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
     <script>
         const originalAmount = @Model.TotalAmount.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture);
+        const standardPrice = @Model.StandardPrice.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture);
+        const isVipSeat = @Model.IsVipSeat.ToString().ToLower();
         
         document.getElementById('applyPromoBtn').addEventListener('click', function() {
             const code = document.getElementById('PromoCodeInput').value.trim().toUpperCase();
@@ -102,12 +105,21 @@
             
             let multiplier = 1;
             let discountText = "";
+            let flatPrice = null;
             
             if(code === 'ETK-10') { multiplier = 0.90; discountText = "%10 İndirim başarıyla uygulandı!"; }
             else if(code === 'ETK-20') { multiplier = 0.80; discountText = "%20 İndirim başarıyla uygulandı!"; }
             else if(code === 'ETK-50') { multiplier = 0.50; discountText = "%50 İndirim başarıyla uygulandı!"; }
             else if(code === 'ETK-FREE') { multiplier = 0; discountText = "Bedava Bilet! Tutar sıfırlandı."; }
-            else if(code === 'ETK-VIP') { multiplier = 1; discountText = "VIP Yükseltme uygulandı!"; }
+            else if(code === 'ETK-VIP') { 
+                if (isVipSeat) {
+                    flatPrice = standardPrice;
+                    discountText = "VIP koltuk farkı kaldırıldı!";
+                } else {
+                    multiplier = 1;
+                    discountText = "VIP koltuk seçmediğiniz için bu kod etki etmez.";
+                }
+            }
             else if(code === '') { multiplier = 1; discountText = ""; }
             else {
                 msg.className = "form-text text-danger mt-1 fw-bold d-block";
@@ -120,12 +132,36 @@
                 msg.innerText = discountText;
             }
             
-            const newTotal = (originalAmount * multiplier);
+            let newTotal = originalAmount;
+            if (flatPrice !== null) {
+                newTotal = flatPrice;
+            } else {
+                newTotal = originalAmount * multiplier;
+            }
+            
             // Replace dots with commas depending on culture if needed, but simple replace usually works for display
             const displayTotal = newTotal % 1 === 0 ? newTotal.toString() : newTotal.toFixed(2);
             
             totalDisplay.innerText = "₺" + displayTotal;
             submitBtnText.innerText = "₺" + displayTotal + " Öde ve Bileti Al";
+        });
+        
+        // Form gönderilirken kodu kontrol et
+        document.querySelector('form').addEventListener('submit', function(e) {
+            const code = document.getElementById('PromoCodeInput').value.trim().toUpperCase();
+            const validCodes = ['ETK-10', 'ETK-20', 'ETK-50', 'ETK-FREE', 'ETK-VIP', ''];
+            
+            if (!validCodes.includes(code)) {
+                e.preventDefault(); // Formun gönderilmesini engelle
+                const msg = document.getElementById('promoMessage');
+                msg.className = "form-text text-danger mt-1 fw-bold d-block";
+                msg.innerText = "HATA: Geçersiz veya süresi dolmuş kod girdiniz. Etiket geçersiz!";
+                
+                // Kullanıcının dikkatini çekmek için inputu kırmızı yap
+                const input = document.getElementById('PromoCodeInput');
+                input.classList.add('is-invalid');
+                setTimeout(() => input.classList.remove('is-invalid'), 2000);
+            }
         });
     </script>
 }
