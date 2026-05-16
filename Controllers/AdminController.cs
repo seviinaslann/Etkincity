@@ -47,6 +47,49 @@ public class AdminController : Controller
         return View(reservations);
     }
 
+    // Temporary: Database Review
+    public async Task<IActionResult> DatabaseReview()
+    {
+        var events = await _context.Events.OrderBy(e => e.Category).ToListAsync();
+        return View(events);
+    }
+
+    // POST: Fix all database images based on category with unique professional images
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> FixEventImages()
+    {
+        var events = await _context.Events.ToListAsync();
+        
+        foreach (var evt in events)
+        {
+            // Picsum veya boş olanları profesyonel Unsplash linkleri ile değiştir
+            // Her resme &sig=@evt.Id ekleyerek hepsinin benzersiz olmasını sağlıyoruz.
+            // Önemli: Kullanıcının kendi eklediği/düzelttiği özel Unsplash görsellerini veya yüklediği yerel resimleri EZMEMEK için unsplash kontrolünü kaldırdık.
+            if (string.IsNullOrEmpty(evt.ImageUrl) || evt.ImageUrl.Contains("picsum"))
+            {
+                string baseUrl = evt.Category switch
+                {
+                    EventCategory.Konser => "https://images.unsplash.com/photo-1501281668745-f7f57925c3b4",
+                    EventCategory.Spor => "https://images.unsplash.com/photo-1504450758481-7338eba7524a",
+                    EventCategory.Tiyatro => "https://images.unsplash.com/photo-1507676184212-d03ab07a01bf",
+                    EventCategory.Festival => "https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3",
+                    EventCategory.Sergi => "https://images.unsplash.com/photo-1460661419201-fd4cecdf8a8b",
+                    EventCategory.Soylesi => "https://images.unsplash.com/photo-1475721027187-402ad2989a3b",
+                    EventCategory.StandUp => "https://images.unsplash.com/photo-1527224857853-e3748b6f4813",
+                    _ => "https://images.unsplash.com/photo-1492684223066-81342ee5ff30"
+                };
+
+                // ID bazlı benzersiz imza ekle
+                evt.ImageUrl = $"{baseUrl}?auto=format&fit=crop&w=800&q=80&sig={evt.Id}";
+            }
+        }
+
+        await _context.SaveChangesAsync();
+        TempData["SuccessMessage"] = "Tüm veritabanı görselleri her etkinlik için tamamen benzersiz olacak şekilde güncellendi!";
+        return RedirectToAction(nameof(DatabaseReview));
+    }
+
     // GET: Create Event
     public IActionResult Create()
     {
@@ -62,6 +105,7 @@ public class AdminController : Controller
         {
             if (evt.ImageUpload != null)
             {
+                Console.WriteLine("DEBUG: Dosya Geldi -> " + evt.ImageUpload.FileName);
                 string uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "images");
                 if (!Directory.Exists(uploadsFolder))
                 {
@@ -69,17 +113,34 @@ public class AdminController : Controller
                 }
                 string uniqueFileName = Guid.NewGuid().ToString() + "_" + evt.ImageUpload.FileName;
                 string filePath = Path.Combine(uploadsFolder, uniqueFileName);
+                
                 using (var fileStream = new FileStream(filePath, FileMode.Create))
                 {
                     await evt.ImageUpload.CopyToAsync(fileStream);
                 }
+                
                 evt.ImageUrl = "/images/" + uniqueFileName;
+                Console.WriteLine("DEBUG: Yeni URL Atandı -> " + evt.ImageUrl);
+            }
+            else
+            {
+                Console.WriteLine("DEBUG: ImageUpload NULL!");
             }
 
             _context.Events.Add(evt);
             await _context.SaveChangesAsync();
+            Console.WriteLine("DEBUG: Veritabanına Kaydedildi. ID: " + evt.Id);
+            
             TempData["SuccessMessage"] = "Yeni etkinlik başarıyla eklendi!";
             return RedirectToAction(nameof(Index));
+        }
+        else
+        {
+            Console.WriteLine("DEBUG: ModelState Geçersiz!");
+            foreach (var error in ModelState.Values.SelectMany(v => v.Errors))
+            {
+                Console.WriteLine("DEBUG: Hata -> " + error.ErrorMessage);
+            }
         }
         return View(evt);
     }
@@ -123,6 +184,7 @@ public class AdminController : Controller
                 }
                 else
                 {
+                    // Yeni fotoğraf yüklenmediyse, mevcut fotoğrafı koru
                     evt.ImageUrl = existingEvent.ImageUrl;
                 }
 

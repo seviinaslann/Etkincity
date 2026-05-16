@@ -126,22 +126,22 @@
                                 <div class="seat-map-container bg-white p-3 rounded shadow-sm text-center">
                                     <div class="screen mb-4 p-2 bg-dark text-white rounded small fw-bold">SAHNE</div>
                                     <div class="d-flex flex-column gap-2 align-items-center">
-                                        @for (char row = 'A'; row <= 'F'; row++)
+                                        @for (int row = 0; row < 6; row++)
                                         {
-                                            <div class="d-flex gap-2 align-items-center">
-                                                <div class="fw-bold text-muted" style="width: 20px;">@row</div>
+                                            <div class="d-flex gap-2 align-items-center justify-content-center">
                                                 @for (int col = 1; col <= 10; col++)
                                                 {
-                                                    string seatId = $"{row}-{col}";
+                                                    int seatNumber = (row * 10) + col;
+                                                    string seatId = seatNumber.ToString();
                                                     bool isTaken = ViewBag.TakenSeats != null && ((List<string>)ViewBag.TakenSeats).Contains(seatId);
-                                                    bool isVip = (row == 'A' || row == 'B' || row == 'C');
+                                                    bool isVip = seatNumber <= 30;
                                                     string seatClass = isTaken ? "seat-taken" : "seat-available";
                                                     string vipStyle = isVip ? "border: 2px solid gold;" : "";
                                                     
                                                     <div class="seat @seatClass rounded text-center cursor-pointer text-white" 
                                                          style="width: 30px; height: 30px; line-height: 28px; font-size: 10px; @vipStyle"
                                                          data-seat="@seatId" data-taken="@isTaken.ToString().ToLower()" data-vip="@isVip.ToString().ToLower()" title="@(isVip ? "VIP Koltuk" : "Standart Koltuk")">
-                                                        @col
+                                                        @seatNumber
                                                     </div>
                                                 }
                                             </div>

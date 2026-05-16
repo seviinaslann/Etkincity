@@ -1,0 +1,64 @@
+@model IEnumerable<Etkincity.Models.Event>
+@{
+    ViewData["Title"] = "Veritabanı Görsel Denetimi";
+    Layout = "_Layout";
+}
+
+<div class="container mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="fas fa-database me-2"></i>Veritabanı Görsel Denetimi</h2>
+        <div>
+            <form asp-action="FixEventImages" asp-controller="Admin" method="post" class="mb-3">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn btn-warning fw-bold">
+                    Görselleri Kategoriye Göre Otomatik Düzelt
+                </button>
+            </form>
+            <a asp-action="Index" class="btn btn-secondary ms-2">Admin Paneline Dön</a>
+        </div>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
+            <i class="fas fa-check-circle me-2"></i> @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="alert alert-info shadow-sm">
+        <i class="fas fa-info-circle me-2"></i> Bu sayfa veritabanındaki ImageUrl verilerini denetlemek için oluşturulmuştur. <strong>Otomatik Düzelt</strong> butonu, veritabanındaki hatalı/tekrarlayan Unsplash linklerini kategoriye uygun olanlarla tek seferde değiştirir.
+    </div>
+
+    <div class="card shadow-sm border-0 rounded-4 overflow-hidden">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-dark text-white">
+                    <tr>
+                        <th class="ps-4">Etkinlik Adı</th>
+                        <th>Kategori</th>
+                        <th>ImageUrl (Veritabanındaki Değer)</th>
+                        <th>Önizleme</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td class="ps-4 fw-bold">@item.Title</td>
+                            <td><span class="badge bg-primary">@item.Category</span></td>
+                            <td>
+                                <code class="small text-break">@(string.IsNullOrEmpty(item.ImageUrl) ? "NULL / BOŞ" : item.ImageUrl)</code>
+                            </td>
+                            <td>
+                                <img src="@(string.IsNullOrEmpty(item.ImageUrl) ? "/images/default-event.jpg" : item.ImageUrl)" 
+                                     onerror="this.onerror=null;this.src='/images/default-event.jpg';" 
+                                     class="rounded" style="width: 100px; height: 60px; object-fit: cover;" />
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

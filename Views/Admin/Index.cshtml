@@ -65,8 +65,13 @@
                             <tr>
                                 <td class="ps-4">
                                     <div class="d-flex align-items-center">
-                                        <img src="@(string.IsNullOrEmpty(item.ImageUrl) ? "https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?auto=format&fit=crop&w=800&q=80" : item.ImageUrl)" onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?auto=format&fit=crop&w=800&q=80';" class="rounded me-3" style="width: 50px; height: 50px; object-fit: cover;" alt="@item.Title" />
-                                        <div class="fw-bold">@item.Title</div>
+                                        <img src="@(string.IsNullOrEmpty(item.ImageUrl) ? "/images/default-event.jpg" : item.ImageUrl)" onerror="this.onerror=null;this.src='/images/default-event.jpg';" class="rounded me-3" style="width: 50px; height: 50px; object-fit: cover;" alt="@item.Title" />
+                                        <div>
+                                            <h6 class="mb-1 fw-bold">@item.Title</h6>
+                                            <div class="small text-muted" style="word-break: break-all; max-width: 250px;">
+                                                <i class="fas fa-link me-1"></i> @(string.IsNullOrEmpty(item.ImageUrl) ? "Boş (Default Gösteriliyor)" : item.ImageUrl)
+                                            </div>
+                                        </div>
                                     </div>
                                 </td>
                                 <td><span class="badge bg-secondary">@item.Category</span></td>

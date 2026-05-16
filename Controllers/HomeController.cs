@@ -183,7 +183,7 @@ public class HomeController : Controller
                     existingUnpaid.SelectedSeat = reservation.SelectedSeat;
                     
                     decimal vipSurcharge = 0;
-                    if (reservation.SelectedSeat.StartsWith("A") || reservation.SelectedSeat.StartsWith("B") || reservation.SelectedSeat.StartsWith("C"))
+                    if (int.TryParse(reservation.SelectedSeat, out int s1) && s1 <= 30)
                     {
                         vipSurcharge = evt.Price * 0.5m; // %50 VIP farkı
                     }
@@ -226,7 +226,7 @@ public class HomeController : Controller
             
             // VIP Fiyat Hesaplama
             decimal vipSurcharge = 0;
-            if (reservation.SelectedSeat.StartsWith("A") || reservation.SelectedSeat.StartsWith("B") || reservation.SelectedSeat.StartsWith("C"))
+            if (int.TryParse(reservation.SelectedSeat, out int s2) && s2 <= 30)
             {
                 vipSurcharge = evt.Price * 0.5m; // %50 VIP farkı
             }
@@ -250,7 +250,7 @@ public class HomeController : Controller
         var reservation = await _context.Reservations.Include(r => r.Event).FirstOrDefaultAsync(r => r.Id == id);
         if (reservation == null || reservation.IsPaid) return NotFound();
 
-        bool isVip = !string.IsNullOrEmpty(reservation.SelectedSeat) && (reservation.SelectedSeat.StartsWith("A") || reservation.SelectedSeat.StartsWith("B") || reservation.SelectedSeat.StartsWith("C"));
+        bool isVip = !string.IsNullOrEmpty(reservation.SelectedSeat) && int.TryParse(reservation.SelectedSeat, out int s3) && s3 <= 30;
 
         var model = new PaymentViewModel
         {
@@ -282,7 +282,7 @@ public class HomeController : Controller
                 else if (code == "ETK-FREE") reservation.TotalPrice = 0m;
                 else if (code == "ETK-VIP")
                 {
-                    if (reservation.SelectedSeat != null && (reservation.SelectedSeat.StartsWith("A") || reservation.SelectedSeat.StartsWith("B") || reservation.SelectedSeat.StartsWith("C")))
+                    if (reservation.SelectedSeat != null && int.TryParse(reservation.SelectedSeat, out int s4) && s4 <= 30)
                     {
                         // VIP koltuk ise, fiyati standart fiyata indir!
                         reservation.TotalPrice = reservation.Event?.Price ?? 0;
@@ -292,7 +292,7 @@ public class HomeController : Controller
                 {
                     ModelState.AddModelError("PromoCode", "Geçersiz veya süresi dolmuş indirim kodu.");
                     
-                    bool isVip = !string.IsNullOrEmpty(reservation.SelectedSeat) && (reservation.SelectedSeat.StartsWith("A") || reservation.SelectedSeat.StartsWith("B") || reservation.SelectedSeat.StartsWith("C"));
+                    bool isVip = !string.IsNullOrEmpty(reservation.SelectedSeat) && int.TryParse(reservation.SelectedSeat, out int s5) && s5 <= 30;
                     model.StandardPrice = reservation.Event?.Price ?? 0;
                     model.IsVipSeat = isVip;
                     model.TotalAmount = reservation.TotalPrice;
