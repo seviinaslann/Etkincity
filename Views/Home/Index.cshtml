@@ -1,28 +1,115 @@
 @model IEnumerable<Etkincity.Models.Event>
 @{
     ViewData["Title"] = "Ana Sayfa";
+    // Featured event = the first upcoming one
+    var featuredEvent = Model.FirstOrDefault(e => e.Date > DateTime.Now) ?? Model.FirstOrDefault();
+    int totalEvents = Model.Count();
 }
 
-<div class="hero-section">
-    <h1 class="hero-title">Van'ın Eğlence Merkezi</h1>
-    <p class="hero-subtitle">En güncel konserler, tiyatrolar, festivaller ve spor müsabakaları için biletinizi hemen alın. Şehrin ritmini yakalayın!</p>
-    <a href="#events" class="btn btn-primary btn-lg mt-3"><i class="fas fa-ticket-alt me-2"></i>Etkinlikleri Keşfet</a>
-</div>
+@* ─── HERO SECTION ────────────────────────────────────────────────── *@
+<section class="hero-section">
+    <div class="container">
+        <div class="row align-items-center g-5">
 
-<div class="container mt-5" id="events">
-    
+            @* LEFT: Headline *@
+            <div class="col-lg-6">
+                <div class="hero-eyebrow">
+                    <i class="fas fa-bolt fa-xs"></i> Van'ın Etkinlik Platformu
+                </div>
+                <h1 class="hero-title">
+                    Keşfet,<br>
+                    Katıl,<br>
+                    <span class="highlight">Anılarını Biriktir.</span>
+                </h1>
+                <p class="hero-subtitle">
+                    Van'ın en iyi konserleri, tiyatroları, festivalleri ve spor etkinlikleri tek platformda. Biletini güvenle al, anılarını biriktir.
+                </p>
+                <div class="hero-cta-group">
+                    <a href="#events" class="btn btn-primary">
+                        <i class="fas fa-ticket-alt me-2"></i>Etkinlikleri Keşfet
+                    </a>
+                    @if (!(User.Identity?.IsAuthenticated ?? false))
+                    {
+                        <a asp-controller="Account" asp-action="Register" class="btn btn-outline-light">
+                            Ücretsiz Kayıt Ol
+                        </a>
+                    }
+                </div>
+
+                @* Stats *@
+                <div class="hero-stats">
+                    <div class="hero-stat-item">
+                        <span class="hero-stat-number">@totalEvents+</span>
+                        <span class="hero-stat-label">Aktif Etkinlik</span>
+                    </div>
+                    <div class="hero-stat-item">
+                        <span class="hero-stat-number">Van</span>
+                        <span class="hero-stat-label">Şehir</span>
+                    </div>
+                    <div class="hero-stat-item">
+                        <span class="hero-stat-number">%100</span>
+                        <span class="hero-stat-label">Güvenli Ödeme</span>
+                    </div>
+                </div>
+            </div>
+
+            @* RIGHT: Featured Event Card *@
+            @if (featuredEvent != null)
+            {
+                var featuredImg = string.IsNullOrWhiteSpace(featuredEvent.ImageUrl)
+                    ? "/images/default-event.jpg"
+                    : featuredEvent.ImageUrl;
+
+                <div class="col-lg-6">
+                    <a asp-action="Details" asp-route-id="@featuredEvent.Id" style="text-decoration:none; display:block;">
+                        <div class="hero-featured-card">
+                            <img src="@featuredImg"
+                                 alt="@featuredEvent.Title"
+                                 onerror="this.onerror=null;this.src='/images/default-event.jpg';" />
+                            <div class="hero-featured-overlay">
+                                <span class="badge-cat">@featuredEvent.Category</span>
+                                <h3>@featuredEvent.Title</h3>
+                                <div class="meta">
+                                    <span><i class="far fa-calendar-alt me-1"></i>@featuredEvent.Date.ToString("dd MMM yyyy")</span>
+                                    <span><i class="fas fa-map-marker-alt me-1"></i>@featuredEvent.Location</span>
+                                    <span style="margin-left:auto; font-weight:700; font-size:1rem; opacity:1;">
+                                        @(featuredEvent.Price == 0 ? "Ücretsiz" : $"₺{featuredEvent.Price}")
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+</section>
+
+@* ─── MAIN CONTENT ─────────────────────────────────────────────────── *@
+<div class="container pb-5" id="events">
+
+    @* Success message *@
     @if (TempData["SuccessMessage"] != null)
     {
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            <i class="fas fa-check-circle me-2"></i> @TempData["SuccessMessage"]
+        <div class="alert alert-success alert-dismissible fade show mb-4" role="alert">
+            <i class="fas fa-check-circle me-2"></i>@TempData["SuccessMessage"]
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     }
 
+    @* ── RECOMMENDED ──────────────────────────────────────────── *@
     @if (ViewBag.RecommendedEvents != null && ((IEnumerable<Etkincity.Models.Event>)ViewBag.RecommendedEvents).Any())
     {
-        <div class="mb-5 p-4 rounded-4" style="background: linear-gradient(135deg, rgba(46, 125, 50, 0.05) 0%, rgba(27, 94, 32, 0.1) 100%); border: 1px solid rgba(46, 125, 50, 0.2);">
-            <h3 class="fw-bold mb-4" style="color: var(--accent-color);"><i class="fas fa-star me-2 text-warning"></i>Sizin İçin Önerilenler</h3>
+        <div class="recommended-section mb-5">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <div class="section-label">
+                        <i class="fas fa-star text-warning me-1"></i> Kişiselleştirilmiş
+                    </div>
+                    <h2 class="section-title">Sizin İçin Seçtik</h2>
+                </div>
+            </div>
+
             <div class="row g-4">
                 @foreach (var item in (IEnumerable<Etkincity.Models.Event>)ViewBag.RecommendedEvents)
                 {
@@ -31,21 +118,25 @@
                         : item.ImageUrl;
 
                     <div class="col-md-4">
-                        <div class="card event-card h-100" style="border-color: rgba(46, 125, 50, 0.4);">
-                            <img src="@imageUrl"
-                                 class="event-cover-img"
-                                 alt="@item.Title"
-                                 onerror="this.onerror=null; this.src='/images/default-event.jpg';" />
+                        <div class="card event-card h-100" style="border-color: rgba(58,125,68,0.28);">
+                            <div class="event-img-wrap">
+                                <img src="@imageUrl"
+                                     class="event-cover-img"
+                                     alt="@item.Title"
+                                     onerror="this.onerror=null;this.src='/images/default-event.jpg';" />
+                            </div>
                             <div class="card-body d-flex flex-column">
                                 <div class="d-flex justify-content-between align-items-start mb-2">
-                                    <span class="badge bg-success mb-2">@item.Category</span>
+                                    <span class="badge bg-success">@item.Category</span>
                                     <span class="price-tag">@(item.Price == 0 ? "Ücretsiz" : $"₺{item.Price}")</span>
                                 </div>
                                 <h5 class="card-title">@item.Title</h5>
-                                <p class="card-text mb-3"><i class="fas fa-map-marker-alt text-danger me-2"></i>@item.Location</p>
-                                <p class="card-text mb-4"><i class="far fa-calendar-alt text-warning me-2"></i>@item.Date.ToString("dd MMMM yyyy - HH:mm")</p>
+                                <p class="card-text mb-1"><i class="fas fa-map-marker-alt text-danger me-1"></i>@item.Location</p>
+                                <p class="card-text mb-3"><i class="far fa-calendar-alt text-warning me-1"></i>@item.Date.ToString("dd MMMM yyyy - HH:mm")</p>
                                 <div class="mt-auto">
-                                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-outline-success w-100 fw-bold"><i class="fas fa-ticket-alt me-2"></i>Hemen İncele</a>
+                                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-outline-success w-100">
+                                        <i class="fas fa-ticket-alt me-1"></i>Hemen İncele
+                                    </a>
                                 </div>
                             </div>
                         </div>
@@ -55,24 +146,40 @@
         </div>
     }
 
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="fw-bold mb-0">Yaklaşan Etkinlikler</h2>
-        
-        <form asp-action="Index" method="get" class="d-flex" style="max-width: 350px; width: 100%;">
-            <div class="input-group shadow-sm rounded-pill overflow-hidden">
-                <input type="text" name="searchString" value="@ViewData["CurrentFilter"]" class="form-control border-0 px-4" placeholder="Etkinlik veya mekan ara...">
-                <button type="submit" class="btn btn-primary px-4"><i class="fas fa-search"></i></button>
-            </div>
-        </form>
+    @* ── ALL EVENTS ───────────────────────────────────────────── *@
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+        <div>
+            <div class="section-label">Yaklaşan</div>
+            <h2 class="section-title">Tüm Etkinlikler</h2>
+        </div>
+
+        @* Search *@
+        <div class="search-bar-wrap" style="max-width: 340px; width: 100%;">
+            <form asp-action="Index" method="get">
+                <div class="input-group">
+                    <input type="text"
+                           name="searchString"
+                           value="@ViewData["CurrentFilter"]"
+                           class="form-control"
+                           placeholder="Etkinlik veya mekan ara..." />
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
 
     <div class="row g-4">
         @if (!Model.Any())
         {
             <div class="col-12 text-center py-5">
-                <i class="fas fa-search fa-3x mb-3 text-secondary"></i>
-                <h4 class="text-secondary">Aradığınız kriterlere uygun etkinlik bulunamadı.</h4>
-                <a asp-action="Index" class="btn btn-outline-primary mt-3 rounded-pill">Tüm Etkinlikleri Gör</a>
+                <div style="width:72px;height:72px;background:var(--accent-soft);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;">
+                    <i class="fas fa-search fa-lg" style="color:var(--accent);"></i>
+                </div>
+                <h4 style="font-weight:700;color:var(--text-primary);">Sonuç bulunamadı</h4>
+                <p class="text-muted mb-4">Aradığınız kriterlere uygun etkinlik bulunamadı.</p>
+                <a asp-action="Index" class="btn btn-primary">Tüm Etkinlikleri Gör</a>
             </div>
         }
         else
@@ -83,32 +190,41 @@
                     ? "/images/default-event.jpg"
                     : item.ImageUrl;
 
-                <div class="col-md-4">
+
+                string badgeClass = item.Category switch {
+                    Etkincity.Models.EventCategory.Konser   => "bg-primary",
+                    Etkincity.Models.EventCategory.Spor     => "bg-warning text-dark",
+                    Etkincity.Models.EventCategory.Tiyatro  => "bg-success",
+                    Etkincity.Models.EventCategory.Festival => "bg-danger",
+                    Etkincity.Models.EventCategory.Sergi    => "bg-info text-dark",
+                    _                                       => "bg-secondary"
+                };
+
+
+                <div class="col-md-6 col-lg-4">
                     <div class="card event-card h-100">
-                        <img src="@imageUrl"
-                             class="event-cover-img"
-                             alt="@item.Title"
-                             onerror="this.onerror=null; this.src='/images/default-event.jpg';" />
+                        <div class="event-img-wrap">
+                            <img src="@imageUrl"
+                                 class="event-cover-img"
+                                 alt="@item.Title"
+                                 onerror="this.onerror=null;this.src='/images/default-event.jpg';" />
+                        </div>
                         <div class="card-body d-flex flex-column">
                             <div class="d-flex justify-content-between align-items-start mb-2">
-                                @{
-                                    string badgeClass = item.Category switch {
-                                        Etkincity.Models.EventCategory.Konser => "bg-primary",
-                                        Etkincity.Models.EventCategory.Spor => "bg-warning text-dark",
-                                        Etkincity.Models.EventCategory.Tiyatro => "bg-success",
-                                        Etkincity.Models.EventCategory.Festival => "bg-danger",
-                                        Etkincity.Models.EventCategory.Sergi => "bg-info",
-                                        _ => "bg-secondary"
-                                    };
-                                }
-                                <span class="badge @badgeClass mb-2">@item.Category</span>
+                                <span class="badge @badgeClass">@item.Category</span>
                                 <span class="price-tag">@(item.Price == 0 ? "Ücretsiz" : $"₺{item.Price}")</span>
                             </div>
                             <h5 class="card-title">@item.Title</h5>
-                            <p class="card-text mb-3"><i class="fas fa-map-marker-alt text-danger me-2"></i>@item.Location</p>
-                            <p class="card-text mb-4"><i class="far fa-calendar-alt text-warning me-2"></i>@item.Date.ToString("dd MMMM yyyy - HH:mm")</p>
+                            <p class="card-text mb-1">
+                                <i class="fas fa-map-marker-alt text-danger me-1"></i>@item.Location
+                            </p>
+                            <p class="card-text mb-4">
+                                <i class="far fa-calendar-alt text-warning me-1"></i>@item.Date.ToString("dd MMMM yyyy - HH:mm")
+                            </p>
                             <div class="mt-auto">
-                                <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-primary w-100"><i class="fas fa-ticket-alt me-2"></i>Bilet Al / İncele</a>
+                                <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-primary w-100">
+                                    <i class="fas fa-ticket-alt me-2"></i>Bilet Al / İncele
+                                </a>
                             </div>
                         </div>
                     </div>
