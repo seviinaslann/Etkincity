@@ -12,13 +12,13 @@ public class ChatController : ControllerBase
 {
     private readonly IConfiguration _configuration;
     private readonly ApplicationDbContext _context;
-    private readonly HttpClient _httpClient;
+    private readonly IHttpClientFactory _httpClientFactory;
 
-    public ChatController(IConfiguration configuration, ApplicationDbContext context)
+    public ChatController(IConfiguration configuration, ApplicationDbContext context, IHttpClientFactory httpClientFactory)
     {
         _configuration = configuration;
         _context = context;
-        _httpClient = new HttpClient();
+        _httpClientFactory = httpClientFactory;
     }
 
     public class ChatPart { public string text { get; set; } = string.Empty; }
@@ -37,12 +37,12 @@ public class ChatController : ControllerBase
     {
         string? apiKey = _configuration["GeminiApiKey"];
         
-        if (string.IsNullOrEmpty(apiKey) || apiKey == "BURAYA_API_ANAHTARINIZI_YAPISTIRIN")
+        if (string.IsNullOrWhiteSpace(apiKey) || apiKey == "BURAYA_API_ANAHTARINIZI_YAPISTIRIN")
         {
             return Ok(new { response = "Sistem yöneticisi henüz API anahtarını yapılandırmadı. Lütfen appsettings.json dosyasına ücretsiz bir Gemini API Anahtarı ekleyin." });
         }
 
-        string url = $"https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key={apiKey}";
+        string url = $"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key={apiKey}";
 
         // Veritabanındaki gerçek etkinlikleri al
         var events = await _context.Events.AsNoTracking().ToListAsync();
@@ -80,24 +80,42 @@ public class ChatController : ControllerBase
 
         try
         {
-            var response = await _httpClient.PostAsync(url, content);
-            response.EnsureSuccessStatusCode();
+            var httpClient = _httpClientFactory.CreateClient();
+            httpClient.Timeout = TimeSpan.FromSeconds(30);
+
+            var response = await httpClient.PostAsync(url, content);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorBody = await response.Content.ReadAsStringAsync();
+                return Ok(new { response = $"Yapay zeka API'sine bağlanılamadı (HTTP {(int)response.StatusCode}). Lütfen API anahtarınızın geçerli olduğundan emin olun." });
+            }
 
             var responseBody = await response.Content.ReadAsStringAsync();
             using var jsonDocument = JsonDocument.Parse(responseBody);
-            
-            var answerText = jsonDocument.RootElement
-                .GetProperty("candidates")[0]
+
+            // Güvenli erişim: candidates[0].content.parts[0].text
+            if (!jsonDocument.RootElement.TryGetProperty("candidates", out var candidates) ||
+                candidates.GetArrayLength() == 0)
+            {
+                return Ok(new { response = "Yapay zekadan geçerli bir yanıt alınamadı. Lütfen tekrar deneyin." });
+            }
+
+            var answerText = candidates[0]
                 .GetProperty("content")
                 .GetProperty("parts")[0]
                 .GetProperty("text")
-                .GetString();
+                .GetString() ?? "Yanıt alınamadı.";
 
             return Ok(new { response = answerText });
         }
+        catch (TaskCanceledException)
+        {
+            return Ok(new { response = "Yapay zeka yanıt verme süresi doldu. Lütfen tekrar deneyin." });
+        }
         catch (Exception ex)
         {
-            return Ok(new { response = $"Üzgünüm, şu anda yapay zeka beynime bağlanamıyorum. Lütfen daha sonra tekrar deneyin veya API anahtarınızı kontrol edin. Hata: {ex.Message}" });
+            return Ok(new { response = $"Üzgünüm, yapay zeka beynime şu an bağlanamıyorum. Lütfen daha sonra tekrar deneyin. (Hata: {ex.Message})" });
         }
     }
 }
