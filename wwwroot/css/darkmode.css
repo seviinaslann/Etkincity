@@ -1,0 +1,325 @@
+/* ═══════════════════════════════════════════
+   DARK MODE — CSS Custom Properties Override
+═══════════════════════════════════════════ */
+[data-theme="dark"] {
+    --bg-main:        #0f1410;
+    --bg-surface:     #141a12;
+    --bg-card:        rgba(28, 36, 24, 0.90);
+    --bg-card-hover:  rgba(36, 46, 30, 0.97);
+    --text-primary:   #e8edd3;
+    --text-secondary: #a0ab8a;
+    --text-muted:     #6a7560;
+    --accent:         #5aad65;
+    --accent-light:   #72c47e;
+    --accent-dark:    #3d8047;
+    --accent-soft:    rgba(90, 173, 101, 0.14);
+    --glow-green:     rgba(70, 140, 80, 0.22);
+    --glow-orange:    rgba(200, 110, 40, 0.12);
+    --card-shadow:    0 4px 24px rgba(0, 0, 0, 0.30), 0 1px 4px rgba(0,0,0,0.18);
+    --card-shadow-hover: 0 16px 48px rgba(0, 0, 0, 0.45), 0 4px 12px rgba(0,0,0,0.28);
+}
+
+/* Dark mode — body background */
+[data-theme="dark"] body {
+    background-color: var(--bg-main);
+    background-image:
+        radial-gradient(ellipse 80vw 60vh at 8% 5%,  var(--glow-green),  transparent),
+        radial-gradient(ellipse 70vw 55vh at 92% 95%, var(--glow-orange), transparent),
+        radial-gradient(ellipse 50vw 40vh at 50% 50%, rgba(20,30,15,0.30), transparent);
+    color: var(--text-primary);
+}
+
+/* Dark mode — navbar */
+[data-theme="dark"] .navbar {
+    background: rgba(15, 20, 12, 0.85) !important;
+    border: 1px solid rgba(80, 120, 70, 0.20) !important;
+    box-shadow: 0 2px 24px rgba(0, 0, 0, 0.30) !important;
+}
+
+[data-theme="dark"] .navbar-brand {
+    color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] .nav-link {
+    color: var(--text-secondary) !important;
+}
+
+/* Dark mode — cards */
+[data-theme="dark"] .event-card,
+[data-theme="dark"] .card {
+    background: var(--bg-card);
+    border-color: rgba(80, 120, 70, 0.20);
+}
+
+[data-theme="dark"] .event-card:hover {
+    background: var(--bg-card-hover);
+}
+
+[data-theme="dark"] .event-card .card-title {
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] .event-card .card-text {
+    color: var(--text-secondary);
+}
+
+/* Dark mode — footer */
+[data-theme="dark"] footer {
+    background: rgba(12, 17, 10, 0.95) !important;
+    border-top-color: rgba(80, 120, 70, 0.15) !important;
+    color: var(--text-secondary) !important;
+}
+
+/* Dark mode — search bar */
+[data-theme="dark"] .search-bar-wrap .input-group {
+    background: rgba(28, 36, 24, 0.9);
+    border-color: rgba(80, 120, 70, 0.25);
+}
+
+[data-theme="dark"] .search-bar-wrap .form-control {
+    color: var(--text-primary);
+    background: transparent;
+}
+
+[data-theme="dark"] .search-bar-wrap .form-control::placeholder {
+    color: var(--text-muted);
+}
+
+/* Dark mode — recommended section */
+[data-theme="dark"] .recommended-section {
+    background: linear-gradient(135deg, rgba(58,125,68,0.10) 0%, rgba(80,160,90,0.08) 100%);
+    border-color: rgba(80, 120, 70, 0.20);
+}
+
+/* Dark mode — modal */
+[data-theme="dark"] .modal-content {
+    background: #1a2416;
+    border: 1px solid rgba(80, 120, 70, 0.25);
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] .modal-content .text-secondary {
+    color: var(--text-secondary) !important;
+}
+
+[data-theme="dark"] #wheelResult {
+    background: rgba(28, 36, 24, 0.90) !important;
+}
+
+[data-theme="dark"] #wheelResultText {
+    color: var(--text-primary) !important;
+}
+
+/* Dark mode — alerts */
+[data-theme="dark"] .alert-success {
+    background: rgba(58, 125, 68, 0.18);
+    color: #7dd98a;
+    border: 1px solid rgba(58, 125, 68, 0.30);
+}
+
+[data-theme="dark"] .alert-danger {
+    background: rgba(180, 50, 50, 0.18);
+    color: #f08080;
+    border: 1px solid rgba(180, 50, 50, 0.30);
+}
+
+[data-theme="dark"] .alert-info {
+    background: rgba(50, 100, 160, 0.18);
+    color: #80b0f0;
+    border: 1px solid rgba(50, 100, 160, 0.30);
+}
+
+[data-theme="dark"] .alert-warning {
+    background: rgba(180, 130, 30, 0.18);
+    color: #f0c060;
+    border: 1px solid rgba(180, 130, 30, 0.30);
+}
+
+/* Dark mode — form controls */
+[data-theme="dark"] .form-control,
+[data-theme="dark"] .form-select {
+    background-color: rgba(25, 33, 20, 0.85);
+    border-color: rgba(80, 120, 70, 0.30);
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] .form-control:focus,
+[data-theme="dark"] .form-select:focus {
+    background-color: rgba(30, 40, 24, 0.95);
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(90, 173, 101, 0.18);
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] .form-control::placeholder {
+    color: var(--text-muted);
+}
+
+[data-theme="dark"] .form-label {
+    color: var(--text-secondary);
+}
+
+/* Dark mode — tables */
+[data-theme="dark"] .table {
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] .table > :not(caption) > * > * {
+    background-color: transparent;
+    border-bottom-color: rgba(80, 120, 70, 0.15);
+}
+
+[data-theme="dark"] .table-striped > tbody > tr:nth-of-type(odd) > * {
+    background-color: rgba(28, 36, 24, 0.50);
+}
+
+[data-theme="dark"] .table-hover > tbody > tr:hover > * {
+    background-color: rgba(58, 125, 68, 0.08);
+}
+
+/* Dark mode — hero section */
+[data-theme="dark"] .hero-title {
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] .hero-subtitle {
+    color: var(--text-secondary);
+}
+
+[data-theme="dark"] .hero-stat-number {
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] .hero-stat-label {
+    color: var(--text-muted);
+}
+
+[data-theme="dark"] .hero-eyebrow {
+    background: rgba(90, 173, 101, 0.12);
+    border-color: rgba(90, 173, 101, 0.22);
+}
+
+[data-theme="dark"] .section-divider {
+    background: linear-gradient(to right, transparent, rgba(80,120,70,0.18), transparent);
+}
+
+/* Dark mode — chatbot */
+[data-theme="dark"] .chatbot {
+    background: #141a12;
+    border-color: rgba(80, 120, 70, 0.25);
+}
+
+[data-theme="dark"] .chatbot header {
+    background: rgba(20, 28, 16, 0.95);
+    border-bottom-color: rgba(80, 120, 70, 0.20);
+}
+
+[data-theme="dark"] .chat.incoming p {
+    background: rgba(28, 36, 24, 0.95);
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] .chat-input {
+    background: rgba(20, 28, 16, 0.95);
+    border-top-color: rgba(80, 120, 70, 0.20);
+}
+
+[data-theme="dark"] .chat-input textarea {
+    background: transparent;
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] .chat-input textarea::placeholder {
+    color: var(--text-muted);
+}
+
+/* ═══════════════════════════════════════════
+   THEME TOGGLE BUTTON
+═══════════════════════════════════════════ */
+.theme-toggle-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(82, 88, 74, 0.30);
+    background: rgba(255, 255, 255, 0.45);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-size: 1rem;
+    transition:
+        background 0.28s cubic-bezier(0.4, 0, 0.2, 1),
+        border-color 0.28s cubic-bezier(0.4, 0, 0.2, 1),
+        color 0.28s cubic-bezier(0.4, 0, 0.2, 1),
+        transform 0.28s cubic-bezier(0.4, 0, 0.2, 1),
+        box-shadow 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+    outline: none;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    position: relative;
+    overflow: hidden;
+}
+
+.theme-toggle-btn:hover {
+    background: rgba(255, 255, 255, 0.75);
+    border-color: var(--accent);
+    color: var(--accent);
+    transform: rotate(18deg) scale(1.08);
+    box-shadow: 0 4px 16px rgba(58, 125, 68, 0.20);
+}
+
+.theme-toggle-btn:active {
+    transform: rotate(18deg) scale(0.96);
+}
+
+/* Dark mode — toggle button itself */
+[data-theme="dark"] .theme-toggle-btn {
+    background: rgba(20, 28, 16, 0.70);
+    border-color: rgba(90, 173, 101, 0.30);
+    color: var(--accent-light);
+}
+
+[data-theme="dark"] .theme-toggle-btn:hover {
+    background: rgba(35, 50, 28, 0.85);
+    border-color: var(--accent-light);
+    color: #ffe066;
+    box-shadow: 0 4px 18px rgba(255, 210, 60, 0.20);
+}
+
+/* Icon switching */
+.theme-icon {
+    position: absolute;
+    transition: opacity 0.28s ease, transform 0.36s cubic-bezier(0.4, 0, 0.2, 1);
+    line-height: 1;
+}
+
+/* Light mode → show moon, hide sun */
+.moon-icon { opacity: 1; transform: rotate(0deg) scale(1); }
+.sun-icon  { opacity: 0; transform: rotate(-90deg) scale(0.5); }
+
+/* Dark mode → hide moon, show sun */
+[data-theme="dark"] .moon-icon { opacity: 0; transform: rotate(90deg) scale(0.5); }
+[data-theme="dark"] .sun-icon  { opacity: 1; transform: rotate(0deg) scale(1); color: #ffe066; }
+
+/* ═══════════════════════════════════════════
+   SMOOTH THEME TRANSITION
+═══════════════════════════════════════════ */
+body,
+.navbar,
+.event-card,
+.card,
+footer,
+.form-control,
+.form-select,
+.modal-content,
+.chatbot,
+.recommended-section {
+    transition:
+        background-color 0.36s cubic-bezier(0.4, 0, 0.2, 1),
+        background 0.36s cubic-bezier(0.4, 0, 0.2, 1),
+        color 0.36s cubic-bezier(0.4, 0, 0.2, 1),
+        border-color 0.36s cubic-bezier(0.4, 0, 0.2, 1),
+        box-shadow 0.36s cubic-bezier(0.4, 0, 0.2, 1);
+}

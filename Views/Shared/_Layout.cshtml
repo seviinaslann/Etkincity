@@ -1,6 +1,6 @@
 @using System.Security.Claims
 <!DOCTYPE html>
-<html lang="en">
+<html lang="tr" id="html-root">
 <head>
     <meta charset="utf-8" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -14,7 +14,16 @@
     <link rel="stylesheet" href="~/css/wheel.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/chatbot.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/Etkincity.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/darkmode.css" asp-append-version="true" />
 </head>
+<script>
+    // Dark mode tercihi sayfa flash olmadan uygula
+    (function() {
+        if (localStorage.getItem('etkincity-theme') === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'dark');
+        }
+    })();
+</script>
 <body data-user="@(User.Identity?.IsAuthenticated == true ? User.Identity.Name : "")">
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm">
@@ -41,7 +50,7 @@
                             </li>
                         }
                     </ul>
-                    <ul class="navbar-nav ms-auto">
+                    <ul class="navbar-nav ms-auto align-items-center">
                         @if (User.Identity?.IsAuthenticated ?? false)
                         {
                             <li class="nav-item d-flex align-items-center me-3">
@@ -50,7 +59,7 @@
                                 }
                                 <span class="text-secondary fw-bold"><i class="fas fa-user-circle me-1"></i> Hoş geldin, @fullName</span>
                             </li>
-                            <li class="nav-item">
+                            <li class="nav-item me-2">
                                 <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
                                     <button type="submit" class="btn btn-outline-danger btn-sm rounded-pill px-3">Çıkış Yap</button>
                                 </form>
@@ -61,10 +70,17 @@
                             <li class="nav-item me-2">
                                 <a class="btn btn-outline-primary btn-sm rounded-pill px-3" asp-area="" asp-controller="Account" asp-action="Login"><i class="fas fa-sign-in-alt me-1"></i> Giriş Yap</a>
                             </li>
-                            <li class="nav-item">
+                            <li class="nav-item me-2">
                                 <a class="btn btn-primary btn-sm rounded-pill px-3" asp-area="" asp-controller="Account" asp-action="Register"><i class="fas fa-user-plus me-1"></i> Kayıt Ol</a>
                             </li>
                         }
+                        <!-- Karanlık / Aydınlık Mod Butonu -->
+                        <li class="nav-item">
+                            <button id="theme-toggle" class="theme-toggle-btn" title="Tema değiştir" aria-label="Karanlık/Aydınlık mod">
+                                <span class="theme-icon moon-icon"><i class="fas fa-moon"></i></span>
+                                <span class="theme-icon sun-icon"><i class="fas fa-sun"></i></span>
+                            </button>
+                        </li>
                     </ul>
                 </div>
             </div>
