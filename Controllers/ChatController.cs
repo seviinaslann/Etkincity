@@ -42,7 +42,7 @@ public class ChatController : ControllerBase
             return Ok(new { response = "Sistem yöneticisi henüz API anahtarını yapılandırmadı. Lütfen appsettings.json dosyasına ücretsiz bir Gemini API Anahtarı ekleyin." });
         }
 
-        string url = $"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key={apiKey}";
+        string url = $"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={apiKey}";
 
         // Veritabanındaki gerçek etkinlikleri al
         var events = await _context.Events.AsNoTracking().ToListAsync();
